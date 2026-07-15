@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Products — Warehouse Tracker</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <nav>
+    <div class="logo">📦 WarehouseIQ</div>
+    <div class="nav-links">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/products" class="active">Products</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-header">
+      <h1>Products</h1>
+    </div>
+
+    <div class="card">
+      <h2>Add Product</h2>
+      <form action="/products/add" method="post" class="form-grid">
+        <div class="field">
+          <label>SKU</label>
+          <input type="text" name="sku" placeholder="AMUL-MILK-500" required>
+        </div>
+        <div class="field">
+          <label>Name</label>
+          <input type="text" name="name" placeholder="Amul Milk" required>
+        </div>
+        <div class="field">
+          <label>Brand</label>
+          <input type="text" name="brand" placeholder="Amul" required>
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <input type="text" name="category" placeholder="Dairy" required>
+        </div>
+        <div class="field">
+          <label>Unit</label>
+          <input type="text" name="unit" placeholder="500ml" required>
+        </div>
+        <button type="submit" class="btn">Add Product</button>
+      </form>
+    </div>
+
+    <div class="section">
+      <table>
+        <thead>
+          <tr>
+            <th>SKU</th><th>Name</th><th>Brand</th><th>Category</th><th>Unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in products %}
+          <tr>
+            <td>{{ p.sku }}</td>
+            <td>{{ p.name }}</td>
+            <td>{{ p.brand }}</td>
+            <td>{{ p.category }}</td>
+            <td>{{ p.unit }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" style="text-align:center">No products yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

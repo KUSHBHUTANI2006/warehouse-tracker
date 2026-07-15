@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Warehouse Tracker</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <nav>
+    <div class="logo">📦 WarehouseIQ</div>
+    <div class="nav-links">
+      <a href="/dashboard" class="active">Dashboard</a>
+      <a href="/products">Products</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-header">
+      <h1>Expiry Dashboard</h1>
+      <p class="subtitle">Today: {{ today }}</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ total_products }}</div>
+        <div class="stat-label">Total Products</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ total_batches }}</div>
+        <div class="stat-label">Active Batches</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ total_sold }}</div>
+        <div class="stat-label">Units Sold</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number red">{{ data.expired|length }}</div>
+        <div class="stat-label">Expired Items</div>
+      </div>
+    </div>
+
+    <!-- ADD BATCH FORM -->
+    <div class="card">
+      <h2>Add New Batch</h2>
+      <form action="/batches/add" method="post" class="form-grid">
+        <div class="field">
+          <label>Product SKU</label>
+          <input type="text" name="product_sku" placeholder="AMUL-MILK-500" required>
+        </div>
+        <div class="field">
+          <label>Quantity</label>
+          <input type="number" name="quantity" min="1" placeholder="100" required>
+        </div>
+        <div class="field">
+          <label>Expiry Date</label>
+          <input type="date" name="expiry_date" required>
+        </div>
+        <div class="field">
+          <label>Received Date</label>
+          <input type="date" name="received_date" required>
+        </div>
+        <button type="submit" class="btn">Add Batch</button>
+      </form>
+    </div>
+
+    <!-- RECORD SALE FORM -->
+    <div class="card">
+      <h2>Record Sale</h2>
+      <form action="/sales/add" method="post" class="form-grid">
+        <div class="field">
+          <label>Batch ID</label>
+          <input type="number" name="batch_id" min="1" placeholder="1" required>
+        </div>
+        <div class="field">
+          <label>Quantity Sold</label>
+          <input type="number" name="quantity_sold" min="1" placeholder="10" required>
+        </div>
+        <div class="field">
+          <label>Sale Date</label>
+          <input type="date" name="sale_date" required>
+        </div>
+        <button type="submit" class="btn">Record Sale</button>
+      </form>
+    </div>
+
+    <!-- EXPIRED -->
+    {% if data.expired %}
+    <div class="section">
+      <div class="section-header expired-header">
+        <span class="dot red"></span> Expired ({{ data.expired|length }})
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Batch ID</th><th>Product</th><th>SKU</th>
+            <th>Qty</th><th>Expiry Date</th><th>Days</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in data.expired %}
+          <tr class="row-expired">
+            <td>#{{ b.batch_id }}</td>
+            <td>{{ b.name }}</td>
+            <td>{{ b.product_sku }}</td>
+            <td>{{ b.quantity }}</td>
+            <td>{{ b.expiration_date }}</td>
+            <td><span class="badge red">{{ b.days_left }}d</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- CRITICAL -->
+    {% if data.critical %}
+    <div class="section">
+      <div class="section-header critical-header">
+        <span class="dot orange"></span> Critical — Expires in 1-3 days ({{ data.critical|length }})
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Batch ID</th><th>Product</th><th>SKU</th>
+            <th>Qty</th><th>Expiry Date</th><th>Days Left</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in data.critical %}
+          <tr class="row-critical">
+            <td>#{{ b.batch_id }}</td>
+            <td>{{ b.name }}</td>
+            <td>{{ b.product_sku }}</td>
+            <td>{{ b.quantity }}</td>
+            <td>{{ b.expiration_date }}</td>
+            <td><span class="badge orange">{{ b.days_left }}d</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- WARNING -->
+    {% if data.warning %}
+    <div class="section">
+      <div class="section-header warning-header">
+        <span class="dot yellow"></span> Warning — Expires in 4-7 days ({{ data.warning|length }})
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Batch ID</th><th>Product</th><th>SKU</th>
+            <th>Qty</th><th>Expiry Date</th><th>Days Left</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in data.warning %}
+          <tr class="row-warning">
+            <td>#{{ b.batch_id }}</td>
+            <td>{{ b.name }}</td>
+            <td>{{ b.product_sku }}</td>
+            <td>{{ b.quantity }}</td>
+            <td>{{ b.expiration_date }}</td>
+            <td><span class="badge yellow">{{ b.days_left }}d</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- SAFE -->
+    {% if data.safe %}
+    <div class="section">
+      <div class="section-header safe-header">
+        <span class="dot green"></span> Safe — 8+ days remaining ({{ data.safe|length }})
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Batch ID</th><th>Product</th><th>SKU</th>
+            <th>Qty</th><th>Expiry Date</th><th>Days Left</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in data.safe %}
+          <tr class="row-safe">
+            <td>#{{ b.batch_id }}</td>
+            <td>{{ b.name }}</td>
+            <td>{{ b.product_sku }}</td>
+            <td>{{ b.quantity }}</td>
+            <td>{{ b.expiration_date }}</td>
+            <td><span class="badge green">{{ b.days_left }}d</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if not data.expired and not data.critical and not data.warning and not data.safe %}
+    <div class="empty">
+      <p>No batches yet. Add a batch above to get started.</p>
+    </div>
+    {% endif %}
+
+  </main>
+</body>
+</html>
